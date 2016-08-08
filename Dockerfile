@@ -4,6 +4,7 @@ RUN apt-get update && apt-get install -y python git curl zip nano lib32stdc++6 l
 RUN apt-get install -y patch gawk g++ gcc make libc6-dev patch libreadline6-dev zlib1g-dev libssl-dev libyaml-dev libsqlite3-dev sqlite3 autoconf libgdbm-dev libncurses5-dev automake libtool bison pkg-config libffi-dev libgmp-dev
 RUN rm -rf /var/lib/apt/lists/*
 
+ENV RVM_HOME /var/rvm
 ENV JENKINS_HOME /var/jenkins_home
 ENV JENKINS_SLAVE_AGENT_PORT 50000
 
@@ -26,6 +27,9 @@ VOLUME /var/jenkins_home
 # to set on a fresh new installation. Use it to bundle additional plugins 
 # or config file with your custom jenkins Docker image.
 RUN mkdir -p /usr/share/jenkins/ref/init.groovy.d
+
+RUN mkdir -p /var/rvm
+RUN chmod -R 777 /var/rvm
 
 ENV TINI_VERSION 0.9.0
 ENV TINI_SHA fa23d1e20732501c3bb8eeeca423c89ac80ed452
@@ -70,8 +74,15 @@ USER ${user}
 RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys D39DC0E3 && \
 gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 && \
 \curl -L get.rvm.io | bash -s stable --autolibs=read-fail && \
+/bin/bash -l -c "export rvm_path=/var/rvm" && \
+/bin/bash -l -c "cp -R /var/jenkins_home/.rvm/* /var/rvm/" && \
+/bin/bash -l -c "source /var/rvm/scripts/rvm " && \
+/bin/bash -l -c "/var/rvm/bin/rvm repair all" && \
+/bin/bash -l -c "/var/rvm/bin/rvm reload" && \
+/bin/bash -l -c "rm -rf /var/jenkins_home/.rvm" && \
 /bin/bash -l -c "rvm install ruby-1.9.3-p547" && \
 /bin/bash -l -c "rvm install ruby-2.2" && \
+/bin/bash -l -c "rvm --default use 2.2" && \
 /bin/bash -l -c "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc" && \
 /bin/bash -l -c "gem install bundler --no-ri --no-rdoc" 
 
@@ -94,4 +105,4 @@ COPY install-plugins.sh /usr/local/bin/install-plugins.sh
 
 # make sure rvm is available in our shell when we run the container
 ONBUILD ENV USER ${user}
-ONBUILD RUN /bin/bash -l -c "source /home/$USER/.rvm/scripts/rvm"
+ONBUILD RUN /bin/bash -l -c "source /var/rvm/scripts/rvm"
