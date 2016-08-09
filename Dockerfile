@@ -151,6 +151,9 @@ RUN cd /tmp && unzip awscli-bundle.zip && cd awscli-bundle && ./install -i /usr/
 # RUN /usr/local/rvm/bin/rvm alias create default 2.0.0-p247
 # RUN /usr/local/rvm/bin/rvm system 2.0.0-p247
 
+# for nano text editor use
+ENV TERM xterm
+
 USER ${user}
 
 ENV PATH /usr/support/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
