@@ -103,7 +103,7 @@ RUN chmod -R 777 /usr/support
 RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
 RUN \curl -sSL https://get.rvm.io | bash -s stable --ruby=2.2
 RUN /bin/bash -l -c "source /usr/local/rvm/scripts/rvm && gem install bundler --no-ri --no-rdoc" 
-RUN chmod -R 777 /usr/local/rvm_path
+RUN chmod -R 777 /usr/local/rvm
 # prepare rvm ( temp dislabe ) END
 
 # prepare plugin ( temp disable )
