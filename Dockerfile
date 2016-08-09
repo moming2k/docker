@@ -28,9 +28,6 @@ VOLUME /var/jenkins_home
 # or config file with your custom jenkins Docker image.
 RUN mkdir -p /usr/share/jenkins/ref/init.groovy.d
 
-RUN mkdir -p /var/rvm
-RUN chmod -R 777 /var/rvm
-
 ENV TINI_VERSION 0.9.0
 ENV TINI_SHA fa23d1e20732501c3bb8eeeca423c89ac80ed452
 
@@ -52,11 +49,11 @@ ARG JENKINS_URL=http://repo.jenkins-ci.org/public/org/jenkins-ci/main/jenkins-wa
 
 # could use ADD but this one does not check Last-Modified header neither does it allow to control checksum 
 # see https://github.com/docker/docker/issues/8331
-# RUN curl -fsSL ${JENKINS_URL} -o /usr/share/jenkins/jenkins.war \
-#   && echo "${JENKINS_SHA}  /usr/share/jenkins/jenkins.war" | sha1sum -c -
+RUN curl -fsSL ${JENKINS_URL} -o /usr/share/jenkins/jenkins.war \
+  && echo "${JENKINS_SHA}  /usr/share/jenkins/jenkins.war" | sha1sum -c -
 
-# ENV JENKINS_UC https://updates.jenkins.io
-# RUN chown -R ${user} "$JENKINS_HOME" /usr/share/jenkins/ref
+ENV JENKINS_UC https://updates.jenkins.io
+RUN chown -R ${user} "$JENKINS_HOME" /usr/share/jenkins/ref
 
 # for main web interface:
 EXPOSE 8080
@@ -68,34 +65,48 @@ ENV COPY_REFERENCE_FILE_LOG $JENKINS_HOME/copy_reference_file.log
 
 RUN mkdir -p $JENKINS_HOME/.gnupg && chmod 777 $JENKINS_HOME/.gnupg
 
-USER ${user}
+
 
 # install rvm with ruby 1.9.3
-RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys D39DC0E3 && \
-gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 && \
-\curl -L get.rvm.io | bash -s -- --autolibs=read-fail && \
-/bin/bash -l -c "export rvm_path=/var/rvm" && \
-/bin/bash -l -c "cp -R /var/jenkins_home/.rvm/* /var/rvm/" && \
-/bin/bash -l -c "source /var/rvm/scripts/rvm " && \
-/bin/bash -l -c "echo 'print PATH'" && \
-/bin/bash -l -c "echo $PATH" && \
-/bin/bash -l -c "export PATH=/var/rvm/bin:$PATH" && \
-/bin/bash -l -c "PATH=/var/rvm/bin:$PATH echo $PATH" && \
-/bin/bash -l -c "echo '/var/rvm/bin/rvm repair all'" && \
-/bin/bash -l -c "/var/rvm/bin/rvm repair all" && \
-/bin/bash -l -c "echo /var/rvm/bin/rvm reload" && \
-/bin/bash -l -c "/var/rvm/bin/rvm reload" && \
-/bin/bash -l -c "rm -rf /var/jenkins_home/.rvm" && \
-/bin/bash -l -c "echo 'print PATH'" && \
-/bin/bash -l -c "echo $PATH" && \
-/bin/bash -l -c "echo 'rvm install ruby-1.9.3-p547'" && \
-/bin/bash -l -c "PATH=/var/rvm/bin:$PATH rvm install ruby-1.9.3-p547" && \
-/bin/bash -l -c "echo 'rvm install ruby-2.2'" && \
-/bin/bash -l -c "PATH=/var/rvm/bin:$PATH rvm install ruby-2.2" && \
-/bin/bash -l -c "echo 'rvm --default use 2.2'" && \
-/bin/bash -l -c "PATH=/var/rvm/bin:$PATH rvm --default use 2.2" && \
-/bin/bash -l -c "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc" && \
-/bin/bash -l -c "PATH=/var/rvm/bin:$PATH gem install bundler --no-ri --no-rdoc" 
+# RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys D39DC0E3 && \
+# gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 && \
+# \curl -L get.rvm.io | bash -s -- --autolibs=read-fail && \
+# /bin/bash -l -c "export rvm_path=/var/rvm" && \
+# /bin/bash -l -c "cp -R /var/jenkins_home/.rvm/* /var/rvm/" && \
+# /bin/bash -l -c "source /var/rvm/scripts/rvm " && \
+# /bin/bash -l -c "echo 'print PATH'" && \
+# /bin/bash -l -c "echo $PATH" && \
+# /bin/bash -l -c "export PATH=/var/rvm/bin:$PATH" && \
+# /bin/bash -l -c "PATH=/var/rvm/bin:$PATH echo $PATH" && \
+# /bin/bash -l -c 'source /var/rvm/scripts/rvm' && \
+# /bin/bash -l -c "echo '/var/rvm/bin/rvm repair all'" && \
+# /bin/bash -l -c "/var/rvm/bin/rvm repair all" && \
+# /bin/bash -l -c "echo /var/rvm/bin/rvm reload" && \
+# /bin/bash -l -c "/var/rvm/bin/rvm reload" && \
+# /bin/bash -l -c "rm -rf /var/jenkins_home/.rvm" && \
+# /bin/bash -l -c "echo 'print PATH'" && \
+# /bin/bash -l -c "echo $PATH" && \
+# # /bin/bash -l -c "echo 'rvm install ruby-1.9.3-p547'" && \
+# # /bin/bash -l -c "PATH=/var/rvm/bin:$PATH rvm install ruby-1.9.3-p547" && \
+# /bin/bash -l -c "echo 'rvm install ruby-2.2'" && \
+# /bin/bash -l -c "PATH=/var/rvm/bin:$PATH rvm install ruby-2.2" && \
+# /bin/bash -l -c "echo 'rvm --default use 2.2'" && \
+# /bin/bash -l -c "PATH=/var/rvm/bin:$PATH rvm --default use 2.2" && \
+# /bin/bash -l -c "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc" && \
+# /bin/bash -l -c "PATH=/var/rvm/bin:$PATH gem install bundler --no-ri --no-rdoc" 
+
+RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+RUN \curl -sSL https://get.rvm.io | bash -s stable --ruby=2.2
+RUN /bin/bash -l -c "source /usr/local/rvm/scripts/rvm && gem install bundler --no-ri --no-rdoc" 
+RUN chmod -R 777 /usr/local/rvm
+
+# RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+# RUN \curl -sSL https://get.rvm.io | bash -s stable
+# RUN /usr/local/rvm/bin/rvm install 2.2
+# RUN /usr/local/rvm/bin/rvm alias create default 2.0.0-p247
+# RUN /usr/local/rvm/bin/rvm system 2.0.0-p247
+
+USER ${user}
 
 # RUN curl -sSL https://rvm.io/mpapis.asc | gpg --import - && \
 # gpg --keyserver hkp://keys.gnupg.net --recv-keys D39DC0E3 && \
