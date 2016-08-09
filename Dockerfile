@@ -95,10 +95,55 @@ RUN mkdir -p $JENKINS_HOME/.gnupg && chmod 777 $JENKINS_HOME/.gnupg
 # /bin/bash -l -c "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc" && \
 # /bin/bash -l -c "PATH=/var/rvm/bin:$PATH gem install bundler --no-ri --no-rdoc" 
 
+# create share program
+RUN mkdir -p /usr/support
+RUN chmod -R 777 /usr/support
+
+# prepare rvm ( temp dislabe )
 RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
 RUN \curl -sSL https://get.rvm.io | bash -s stable --ruby=2.2
 RUN /bin/bash -l -c "source /usr/local/rvm/scripts/rvm && gem install bundler --no-ri --no-rdoc" 
-RUN chmod -R 777 /usr/local/rvm
+RUN chmod -R 777 /usr/local/rvm_path
+# prepare rvm ( temp dislabe ) END
+
+# prepare plugin ( temp disable )
+RUN curl -L https://raw.githubusercontent.com/hgomez/devops-incubator/master/forge-tricks/batch-install-jenkins-plugins.sh -o /tmp/batch-install-jenkins-plugins.sh
+RUN chmod 777 /tmp/batch-install-jenkins-plugins.sh
+RUN curl -L https://gist.githubusercontent.com/anonymous/d133713dd3d47c953db0747078de9dbf/raw/e54bbd7d5d4b4dde5221d39351082c1ff8303634/gistfile1.txt -o /tmp/plugins.txt
+RUN mkdir -p /usr/support/plugins
+RUN /tmp/batch-install-jenkins-plugins.sh --plugins /tmp/plugins.txt --plugindir /usr/support/plugins
+# prepare plugin ( temp disable ) END
+
+# prepare android sdk
+# RUN mkdir -p /usr/support/plugins
+
+ENV ANDROID_SDK_HOME /usr/support/android_sdk
+ENV ANDROID_HOME /usr/support/android_sdk
+
+# prepare android sdk ( temp dislabe )
+RUN mkdir /usr/support/android_sdk
+RUN cd /tmp && curl -O https://dl.google.com/android/android-sdk_r24.4.1-linux.tgz && \
+cd /usr/support/android_sdk && \
+tar zxvf /tmp/android-sdk_r24.4.1-linux.tgz && mv android-sdk-linux/* . && \
+mkdir licenses && \
+echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55" > licenses/android-sdk-license && \
+echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > licenses/android-sdk-preview-license 
+# prepare android sdk ( temp dislabe ) END
+# RUN cd /tmp && curl -O http://172.16.3.222:7000/android-sdk_r24.4.1-linux.tgz && \
+#  && \ tools/android update sdk --no-ui
+
+# prepare jruby ( temp dislabe )
+RUN curl -L https://s3.amazonaws.com/jruby.org/downloads/9.1.2.0/jruby-bin-9.1.2.0.tar.gz -o /tmp/jruby-bin-9.1.2.0.tar.gz && \
+cd /usr/support/ && tar -zxvf /tmp/jruby-bin-9.1.2.0.tar.gz && mv jruby-9.1.2.0 jruby
+# RUN curl -L http://172.16.3.222:7000/jruby-bin-9.1.2.0.tar.gz -o /tmp/jruby-bin-9.1.2.0.tar.gz && \
+# prepare jruby ( temp dislabe ) EN
+
+# prepare aws ( temp disable )
+RUN mkdir -p /usr/support/aws && mkdir -p /usr/support/bin 
+RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "/tmp/awscli-bundle.zip" 
+# RUN curl "http://172.16.3.222:7000/awscli-bundle.zip" -o "/tmp/awscli-bundle.zip" 
+RUN cd /tmp && unzip awscli-bundle.zip && cd awscli-bundle && ./install -i /usr/support/aws -b /usr/support/bin/aws
+# prepare aws ( temp disable ) END
 
 # RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
 # RUN \curl -sSL https://get.rvm.io | bash -s stable
@@ -107,6 +152,8 @@ RUN chmod -R 777 /usr/local/rvm
 # RUN /usr/local/rvm/bin/rvm system 2.0.0-p247
 
 USER ${user}
+
+ENV PATH /usr/support/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # RUN curl -sSL https://rvm.io/mpapis.asc | gpg --import - && \
 # gpg --keyserver hkp://keys.gnupg.net --recv-keys D39DC0E3 && \
@@ -127,4 +174,4 @@ COPY install-plugins.sh /usr/local/bin/install-plugins.sh
 
 # make sure rvm is available in our shell when we run the container
 ONBUILD ENV USER ${user}
-ONBUILD RUN /bin/bash -l -c "source /var/rvm/scripts/rvm"
+# ONBUILD RUN /bin/bash -l -c "source /usr/local/rvm/scripts/rvm"
