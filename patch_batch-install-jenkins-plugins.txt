@@ -1,0 +1,11 @@
+--- batch-install-jenkins-plugins.sh	2016-08-09 13:39:17.000000000 +0800
++++ batch-install-jenkins-plugins copy.sh	2016-08-09 13:39:00.000000000 +0800
+@@ -2,7 +2,7 @@
+ #
+ 
+ readonly PROGNAME=$(basename $0)
+-readonly PROGDIR=$(readlink -m $(dirname $0))
++readonly PROGDIR=`perl -e 'use Cwd "abs_path";print abs_path(shift)' $0` # $(readlink -m $(dirname $0))
+ readonly ARGS="$@"
+ 
+ #
