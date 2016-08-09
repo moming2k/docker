@@ -2,7 +2,6 @@ FROM java:8-jdk
 
 RUN apt-get update && apt-get install -y python git curl zip nano lib32stdc++6 lib32z1 python-software-properties software-properties-common
 RUN apt-get install -y patch gawk g++ gcc make libc6-dev patch libreadline6-dev zlib1g-dev libssl-dev libyaml-dev libsqlite3-dev sqlite3 autoconf libgdbm-dev libncurses5-dev automake libtool bison pkg-config libffi-dev libgmp-dev
-RUN rm -rf /var/lib/apt/lists/*
 
 ENV RVM_HOME /var/rvm
 ENV JENKINS_HOME /var/jenkins_home
@@ -153,6 +152,16 @@ RUN cd /tmp && unzip awscli-bundle.zip && cd awscli-bundle && ./install -i /usr/
 
 # for nano text editor use
 ENV TERM xterm
+
+# setup NTP to prevent time shift
+RUN apt-get install -y ntp
+
+RUN service ntp stop && \
+ntpdate -s time.nist.gov && \
+service ntp start
+
+# clean up
+RUN rm -rf /var/lib/apt/lists/*
 
 USER ${user}
 
