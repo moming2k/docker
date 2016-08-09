@@ -73,26 +73,29 @@ USER ${user}
 # install rvm with ruby 1.9.3
 RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys D39DC0E3 && \
 gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 && \
-\curl -L get.rvm.io | bash -s -- --path=/var/rvm --autolibs=read-fail && \
+\curl -L get.rvm.io | bash -s -- --autolibs=read-fail && \
 /bin/bash -l -c "export rvm_path=/var/rvm" && \
 /bin/bash -l -c "cp -R /var/jenkins_home/.rvm/* /var/rvm/" && \
-rvm_path
 /bin/bash -l -c "source /var/rvm/scripts/rvm " && \
+/bin/bash -l -c "echo 'print PATH'" && \
+/bin/bash -l -c "echo $PATH" && \
+/bin/bash -l -c "export PATH=/var/rvm/bin:$PATH" && \
+/bin/bash -l -c "PATH=/var/rvm/bin:$PATH echo $PATH" && \
 /bin/bash -l -c "echo '/var/rvm/bin/rvm repair all'" && \
 /bin/bash -l -c "/var/rvm/bin/rvm repair all" && \
-/bin/bash -l -c "/var/rvm/bin/rvm reload" && \
+/bin/bash -l -c "echo /var/rvm/bin/rvm reload" && \
 /bin/bash -l -c "/var/rvm/bin/rvm reload" && \
 /bin/bash -l -c "rm -rf /var/jenkins_home/.rvm" && \
 /bin/bash -l -c "echo 'print PATH'" && \
 /bin/bash -l -c "echo $PATH" && \
 /bin/bash -l -c "echo 'rvm install ruby-1.9.3-p547'" && \
-/bin/bash -l -c "rvm install ruby-1.9.3-p547" && \
+/bin/bash -l -c "PATH=/var/rvm/bin:$PATH rvm install ruby-1.9.3-p547" && \
 /bin/bash -l -c "echo 'rvm install ruby-2.2'" && \
-/bin/bash -l -c "rvm install ruby-2.2" && \
+/bin/bash -l -c "PATH=/var/rvm/bin:$PATH rvm install ruby-2.2" && \
 /bin/bash -l -c "echo 'rvm --default use 2.2'" && \
-/bin/bash -l -c "rvm --default use 2.2" && \
+/bin/bash -l -c "PATH=/var/rvm/bin:$PATH rvm --default use 2.2" && \
 /bin/bash -l -c "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc" && \
-/bin/bash -l -c "gem install bundler --no-ri --no-rdoc" 
+/bin/bash -l -c "PATH=/var/rvm/bin:$PATH gem install bundler --no-ri --no-rdoc" 
 
 # RUN curl -sSL https://rvm.io/mpapis.asc | gpg --import - && \
 # gpg --keyserver hkp://keys.gnupg.net --recv-keys D39DC0E3 && \
