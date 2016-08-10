@@ -160,6 +160,8 @@ RUN service ntp stop && \
 ntpdate -s time.nist.gov && \
 service ntp start
 
+RUN chmod 777 -R /usr/support/android_sdk
+
 # clean up
 RUN rm -rf /var/lib/apt/lists/*
 
