@@ -154,7 +154,7 @@ RUN cd /tmp && unzip awscli-bundle.zip && cd awscli-bundle && ./install -i /usr/
 ENV TERM xterm
 
 # setup NTP to prevent time shift
-RUN apt-get install -y ntp
+RUN apt-get install -y ntp ntpdate
 
 RUN service ntp stop && \
 ntpdate -s time.nist.gov && \
@@ -162,6 +162,10 @@ service ntp start
 
 # clean up
 RUN rm -rf /var/lib/apt/lists/*
+
+# enable android sdk .android to writeable
+RUN mkdir -p /usr/support/android_sdk/.android
+RUN chmod 777 -R /usr/support/android_sdk/.android
 
 USER ${user}
 
