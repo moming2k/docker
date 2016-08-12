@@ -164,7 +164,7 @@ RUN echo y | android update sdk --no-ui --all --filter \
 # SDKs
 # Please keep these in descending order!
 RUN echo y | android update sdk --no-ui --all --filter \
-  android-N,android-23,android-22,android-21,android-20,android-19,android-17,android-15,android-10
+  android-N,android-23,android-22,android-21,android-20,android-19,android-17,android-16,android-15,android-10
 # build tools
 # Please keep these in descending order!
 # RUN echo y | android update sdk --no-ui --all --filter \
@@ -207,12 +207,19 @@ RUN chmod 777 -R /usr/support/android_sdk/.android
 RUN cd /usr/support/ && curl -L https://gist.githubusercontent.com/anonymous/ade536b5c445a3bccfc47988fb632a2c/raw/8f79353a022b572e95bccd85167361eff3ebab17/Gemfile -o Gemfile && \
 export PATH=/usr/support/jruby/bin:$PATH && gem install bundle && bundle install 
 
+# Install Gradle
+RUN cd /usr/support && \
+    curl -L https://services.gradle.org/distributions/gradle-2.14.1-bin.zip -o gradle-2.14.1-bin.zip && \
+    unzip gradle-2.14.1-bin.zip
+
+ENV GRADLE_HOME /usr/support/gradle-2.14.1
+
 RUN chown -R ${user} /usr/support
 RUN chgrp -R ${user} /usr/support
 
 USER ${user}
 
-ENV PATH /usr/support/jruby/bin:/usr/support/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ENV PATH $GRADLE_HOME/bin:/usr/support/jruby/bin:/usr/support/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # RUN curl -sSL https://rvm.io/mpapis.asc | gpg --import - && \
 # gpg --keyserver hkp://keys.gnupg.net --recv-keys D39DC0E3 && \
