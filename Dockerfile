@@ -144,6 +144,41 @@ RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "/tmp/awscli-bu
 RUN cd /tmp && unzip awscli-bundle.zip && cd awscli-bundle && ./install -i /usr/support/aws -b /usr/support/bin/aws
 # prepare aws ( temp disable ) END
 
+
+ENV PATH ${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
+# ------------------------------------------------------
+# --- Install Android SDKs and other build packages
+
+# Other tools and resources of Android SDK
+#  you should only install the packages you need!
+# To get a full list of available options you can use:
+#  android list sdk --no-ui --all --extended
+RUN echo y | android update sdk --no-ui --all --filter \
+  platform-tools,extra-android-support
+
+# google apis
+# Please keep these in descending order!
+RUN echo y | android update sdk --no-ui --all --filter \
+  addon-google_apis-google-23,addon-google_apis-google-22,addon-google_apis-google-21
+
+# SDKs
+# Please keep these in descending order!
+RUN echo y | android update sdk --no-ui --all --filter \
+  android-N,android-23,android-22,android-21,android-20,android-19,android-17,android-15,android-10
+# build tools
+# Please keep these in descending order!
+RUN echo y | android update sdk --no-ui --all --filter \
+  build-tools-24.0.0-preview,build-tools-23.0.2,build-tools-23.0.1,build-tools-22.0.1,build-tools-21.1.2,build-tools-20.0.0,build-tools-19.1.0,build-tools-17.0.0
+
+# Android System Images, for emulators
+# Please keep these in descending order!
+RUN echo y | android update sdk --no-ui --all --filter \
+  sys-img-armeabi-v7a-android-23,sys-img-armeabi-v7a-android-22,sys-img-armeabi-v7a-android-21,sys-img-armeabi-v7a-android-19,sys-img-armeabi-v7a-android-17,sys-img-armeabi-v7a-android-16,sys-img-armeabi-v7a-android-15
+
+# Extras
+RUN echo y | android update sdk --no-ui --all --filter \
+  extra-android-m2repository,extra-google-m2repository,extra-google-google_play_services
+
 # RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
 # RUN \curl -sSL https://get.rvm.io | bash -s stable
 # RUN /usr/local/rvm/bin/rvm install 2.2
