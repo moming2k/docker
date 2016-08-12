@@ -167,8 +167,8 @@ RUN echo y | android update sdk --no-ui --all --filter \
   android-N,android-23,android-22,android-21,android-20,android-19,android-17,android-15,android-10
 # build tools
 # Please keep these in descending order!
-RUN echo y | android update sdk --no-ui --all --filter \
-  build-tools-24.0.0-preview,build-tools-23.0.2,build-tools-23.0.1,build-tools-22.0.1,build-tools-21.1.2,build-tools-20.0.0,build-tools-19.1.0,build-tools-17.0.0
+# RUN echo y | android update sdk --no-ui --all --filter \
+  # build-tools-24.0.0-preview,build-tools-23.0.3,build-tools-23.0.2,build-tools-23.0.1,build-tools-22.0.1,build-tools-21.1.2,build-tools-20.0.0,build-tools-19.1.0,build-tools-17.0.0
 
 # Android System Images, for emulators
 # Please keep these in descending order!
@@ -191,11 +191,11 @@ ENV TERM xterm
 # setup NTP to prevent time shift
 RUN apt-get install -y ntp ntpdate
 
-RUN service ntp stop && \
-ntpdate -s time.nist.gov && \
-service ntp start
+# RUN service ntp stop && \
+# ntpdate -s time.nist.gov && \
+# service ntp start
 
-RUN chmod 777 -R /usr/support/android_sdk
+# RUN chmod 777 -R /usr/support/android_sdk
 
 # clean up
 RUN rm -rf /var/lib/apt/lists/*
@@ -208,6 +208,7 @@ RUN cd /usr/support/ && curl -L https://gist.githubusercontent.com/anonymous/ade
 export PATH=/usr/support/jruby/bin:$PATH && gem install bundle && bundle install 
 
 RUN chown -R ${user} /usr/support
+RUN chgrp -R ${user} /usr/support
 
 USER ${user}
 
