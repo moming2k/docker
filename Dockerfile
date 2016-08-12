@@ -204,9 +204,14 @@ RUN rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /usr/support/android_sdk/.android
 RUN chmod 777 -R /usr/support/android_sdk/.android
 
+RUN cd /usr/support/ && curl -L https://gist.githubusercontent.com/anonymous/ade536b5c445a3bccfc47988fb632a2c/raw/8f79353a022b572e95bccd85167361eff3ebab17/Gemfile -o Gemfile && \
+export PATH=/usr/support/jruby/bin:$PATH && gem install bundle && bundle install 
+
+RUN chown -R ${user} /usr/support
+
 USER ${user}
 
-ENV PATH /usr/support/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ENV PATH /usr/support/jruby/bin:/usr/support/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # RUN curl -sSL https://rvm.io/mpapis.asc | gpg --import - && \
 # gpg --keyserver hkp://keys.gnupg.net --recv-keys D39DC0E3 && \
