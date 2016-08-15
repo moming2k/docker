@@ -98,7 +98,7 @@ RUN mkdir -p $JENKINS_HOME/.gnupg && chmod 777 $JENKINS_HOME/.gnupg
 RUN mkdir -p /usr/support
 RUN chmod -R 777 /usr/support
 
-# prepare rvm ( temp dislabe )
+# prepare rvm
 RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
 RUN \curl -sSL https://get.rvm.io | bash -s stable --ruby=2.2
 RUN /bin/bash -l -c "source /usr/local/rvm/scripts/rvm && gem install bundler --no-ri --no-rdoc" 
@@ -109,8 +109,10 @@ RUN chmod -R 777 /usr/local/rvm
 RUN curl -L https://raw.githubusercontent.com/hgomez/devops-incubator/master/forge-tricks/batch-install-jenkins-plugins.sh -o /tmp/batch-install-jenkins-plugins.sh
 RUN chmod 777 /tmp/batch-install-jenkins-plugins.sh
 RUN curl -L https://gist.githubusercontent.com/anonymous/d133713dd3d47c953db0747078de9dbf/raw/e54bbd7d5d4b4dde5221d39351082c1ff8303634/gistfile1.txt -o /tmp/plugins.txt
-RUN mkdir -p /usr/support/plugins
-RUN /tmp/batch-install-jenkins-plugins.sh --plugins /tmp/plugins.txt --plugindir /usr/support/plugins
+
+# temp disable for jenkins support library
+# RUN mkdir -p /usr/support/plugins
+# RUN /tmp/batch-install-jenkins-plugins.sh --plugins /tmp/plugins.txt --plugindir /usr/support/plugins
 # prepare plugin ( temp disable ) END
 
 # prepare android sdk
@@ -119,7 +121,7 @@ RUN /tmp/batch-install-jenkins-plugins.sh --plugins /tmp/plugins.txt --plugindir
 ENV ANDROID_SDK_HOME /usr/support/android_sdk
 ENV ANDROID_HOME /usr/support/android_sdk
 
-# prepare android sdk ( temp dislabe )
+# prepare android sdk 
 RUN mkdir /usr/support/android_sdk
 RUN cd /tmp && curl -O https://dl.google.com/android/android-sdk_r24.4.1-linux.tgz && \
 cd /usr/support/android_sdk && \
@@ -131,18 +133,18 @@ echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > licenses/android-sdk-prev
 # RUN cd /tmp && curl -O http://172.16.3.222:7000/android-sdk_r24.4.1-linux.tgz && \
 #  && \ tools/android update sdk --no-ui
 
-# prepare jruby ( temp dislabe )
+# prepare jruby 
 RUN curl -L https://s3.amazonaws.com/jruby.org/downloads/9.1.2.0/jruby-bin-9.1.2.0.tar.gz -o /tmp/jruby-bin-9.1.2.0.tar.gz && \
 cd /usr/support/ && tar -zxvf /tmp/jruby-bin-9.1.2.0.tar.gz && mv jruby-9.1.2.0 jruby
 # RUN curl -L http://172.16.3.222:7000/jruby-bin-9.1.2.0.tar.gz -o /tmp/jruby-bin-9.1.2.0.tar.gz && \
-# prepare jruby ( temp dislabe ) EN
+# prepare jruby 
 
-# prepare aws ( temp disable )
+# prepare aws 
 RUN mkdir -p /usr/support/aws && mkdir -p /usr/support/bin 
 RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "/tmp/awscli-bundle.zip" 
 # RUN curl "http://172.16.3.222:7000/awscli-bundle.zip" -o "/tmp/awscli-bundle.zip" 
 RUN cd /tmp && unzip awscli-bundle.zip && cd awscli-bundle && ./install -i /usr/support/aws -b /usr/support/bin/aws
-# prepare aws ( temp disable ) END
+# prepare aws 
 
 
 ENV PATH ${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
