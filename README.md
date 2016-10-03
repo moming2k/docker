@@ -14,7 +14,7 @@ For weekly releases check out [`jenkinsci/jenkins`](https://hub.docker.com/r/jen
 # Usage
 
 ```
-docker run -p 8080:8080 -p 50000:50000 jenkins
+docker run --rm -p 8001:8080 -p 50001:50000 -v /tmp:/tmp -v /Users/chris.chan/jenkins_home_20160927:/var/jenkins_home --restart=unless-stopped --name jenkins --env JENKINS_ARGS="--prefix=/jenkins2" gt-image/jenkins-2:latest
 ```
 
 NOTE: read below the _build executors_ part for the role of the `50000` port mapping.
