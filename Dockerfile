@@ -64,39 +64,16 @@ ENV COPY_REFERENCE_FILE_LOG $JENKINS_HOME/copy_reference_file.log
 
 RUN mkdir -p $JENKINS_HOME/.gnupg && chmod 777 $JENKINS_HOME/.gnupg
 
-
-
-# install rvm with ruby 1.9.3
-# RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys D39DC0E3 && \
-# gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 && \
-# \curl -L get.rvm.io | bash -s -- --autolibs=read-fail && \
-# /bin/bash -l -c "export rvm_path=/var/rvm" && \
-# /bin/bash -l -c "cp -R /var/jenkins_home/.rvm/* /var/rvm/" && \
-# /bin/bash -l -c "source /var/rvm/scripts/rvm " && \
-# /bin/bash -l -c "echo 'print PATH'" && \
-# /bin/bash -l -c "echo $PATH" && \
-# /bin/bash -l -c "export PATH=/var/rvm/bin:$PATH" && \
-# /bin/bash -l -c "PATH=/var/rvm/bin:$PATH echo $PATH" && \
-# /bin/bash -l -c 'source /var/rvm/scripts/rvm' && \
-# /bin/bash -l -c "echo '/var/rvm/bin/rvm repair all'" && \
-# /bin/bash -l -c "/var/rvm/bin/rvm repair all" && \
-# /bin/bash -l -c "echo /var/rvm/bin/rvm reload" && \
-# /bin/bash -l -c "/var/rvm/bin/rvm reload" && \
-# /bin/bash -l -c "rm -rf /var/jenkins_home/.rvm" && \
-# /bin/bash -l -c "echo 'print PATH'" && \
-# /bin/bash -l -c "echo $PATH" && \
-# # /bin/bash -l -c "echo 'rvm install ruby-1.9.3-p547'" && \
-# # /bin/bash -l -c "PATH=/var/rvm/bin:$PATH rvm install ruby-1.9.3-p547" && \
-# /bin/bash -l -c "echo 'rvm install ruby-2.2'" && \
-# /bin/bash -l -c "PATH=/var/rvm/bin:$PATH rvm install ruby-2.2" && \
-# /bin/bash -l -c "echo 'rvm --default use 2.2'" && \
-# /bin/bash -l -c "PATH=/var/rvm/bin:$PATH rvm --default use 2.2" && \
-# /bin/bash -l -c "echo 'gem: --no-ri --no-rdoc' > ~/.gemrc" && \
-# /bin/bash -l -c "PATH=/var/rvm/bin:$PATH gem install bundler --no-ri --no-rdoc" 
-
 # create share program
 RUN mkdir -p /usr/support
 RUN chmod -R 777 /usr/support
+
+# Install Gradle
+RUN cd /usr/support && \
+    curl -L https://services.gradle.org/distributions/gradle-2.14.1-bin.zip -o gradle-2.14.1-bin.zip && \
+    unzip gradle-2.14.1-bin.zip
+
+ENV GRADLE_HOME /usr/support/gradle-2.14.1
 
 # prepare rvm
 RUN gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
@@ -169,15 +146,15 @@ RUN echo y | android update sdk --no-ui --all --filter \
   android-N,android-23,android-22,android-21,android-20,android-19,android-17,android-16,android-15,android-10
 # build tools
 # Please keep these in descending order!
-# RUN echo y | android update sdk --no-ui --all --filter \
-  # build-tools-24.0.0-preview,build-tools-23.0.3,build-tools-23.0.2,build-tools-23.0.1,build-tools-22.0.1,build-tools-21.1.2,build-tools-20.0.0,build-tools-19.1.0,build-tools-17.0.0
+RUN echo y | android update sdk --no-ui --all --filter \
+  build-tools-24.0.0-preview,build-tools-23.0.3,build-tools-23.0.2,build-tools-23.0.1,build-tools-22.0.1,build-tools-21.1.2,build-tools-20.0.0,build-tools-19.1.0,build-tools-17.0.0
 
 # Android System Images, for emulators
 # Please keep these in descending order!
-# RUN echo y | android update sdk --no-ui --all --filter \
-  # sys-img-armeabi-v7a-android-23,sys-img-armeabi-v7a-android-22,sys-img-armeabi-v7a-android-21,sys-img-armeabi-v7a-android-19,sys-img-armeabi-v7a-android-17,sys-img-armeabi-v7a-android-16,sys-img-armeabi-v7a-android-15
+RUN echo y | android update sdk --no-ui --all --filter \
+  sys-img-armeabi-v7a-android-23,sys-img-armeabi-v7a-android-22,sys-img-armeabi-v7a-android-21,sys-img-armeabi-v7a-android-19,sys-img-armeabi-v7a-android-17,sys-img-armeabi-v7a-android-16,sys-img-armeabi-v7a-android-15
 
-# Extras
+# # Extras
 RUN echo y | android update sdk --no-ui --all --filter \
   extra-android-m2repository,extra-google-m2repository,extra-google-google_play_services
 
@@ -192,6 +169,9 @@ ENV TERM xterm
 
 # setup NTP to prevent time shift
 RUN apt-get install -y ntp ntpdate
+
+# setup ncdu to show disk usage
+RUN apt-get install -y ncdu
 
 # RUN service ntp stop && \
 # ntpdate -s time.nist.gov && \
@@ -208,13 +188,6 @@ RUN chmod 777 -R /usr/support/android_sdk/.android
 
 RUN cd /usr/support/ && curl -L https://gist.githubusercontent.com/anonymous/ade536b5c445a3bccfc47988fb632a2c/raw/8f79353a022b572e95bccd85167361eff3ebab17/Gemfile -o Gemfile && \
 export PATH=/usr/support/jruby/bin:$PATH && gem install bundle && bundle install 
-
-# Install Gradle
-RUN cd /usr/support && \
-    curl -L https://services.gradle.org/distributions/gradle-2.14.1-bin.zip -o gradle-2.14.1-bin.zip && \
-    unzip gradle-2.14.1-bin.zip
-
-ENV GRADLE_HOME /usr/support/gradle-2.14.1
 
 RUN chown -R ${user} /usr/support
 RUN chgrp -R ${user} /usr/support
