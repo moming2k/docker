@@ -186,13 +186,17 @@ RUN rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /usr/support/android_sdk/.android
 RUN chmod 777 -R /usr/support/android_sdk/.android
 
-RUN cd /usr/support/ && curl -L https://gist.githubusercontent.com/anonymous/ade536b5c445a3bccfc47988fb632a2c/raw/8f79353a022b572e95bccd85167361eff3ebab17/Gemfile -o Gemfile && \
+RUN cd /usr/support/ && curl -L https://gist.githubusercontent.com/moming2k/bd5f925812d30faf486f04aee31c602e/raw/1f6ecef749a0af6daea4feaf2bf21275c20cd515/Gemfile -o Gemfile && \
 export PATH=/usr/support/jruby/bin:$PATH && gem install bundle && bundle install 
 
 RUN chown -R ${user} /usr/support
 RUN chgrp -R ${user} /usr/support
 
 USER ${user}
+
+EXPOSE 30000-49999
+EXPOSE 50001-59999
+
 
 ENV PATH $GRADLE_HOME/bin:/usr/support/jruby/bin:/usr/support/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
